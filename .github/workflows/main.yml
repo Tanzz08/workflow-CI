@@ -35,6 +35,7 @@ jobs:
           gdown --id 1syGpIdgrPM3yypO7GWpMUy_LJ9mBO78h -O MLproject/y_test.csv
 
       - name: Run MLflow Project to Train Model
+        id: train_step
         working-directory: MLproject
         run: |
           # Jalankan skrip dan arahkan outputnya ke GITHUB_OUTPUT
