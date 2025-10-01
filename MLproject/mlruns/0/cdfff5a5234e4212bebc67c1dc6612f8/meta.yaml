@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/workflow-CI/workflow-CI/MLproject/mlruns/0/cdfff5a5234e4212bebc67c1dc6612f8/artifacts
+end_time: 1759335232953
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: cdfff5a5234e4212bebc67c1dc6612f8
+run_name: thundering-conch-541
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1759334986180
+status: 3
+tags: []
+user_id: runner
