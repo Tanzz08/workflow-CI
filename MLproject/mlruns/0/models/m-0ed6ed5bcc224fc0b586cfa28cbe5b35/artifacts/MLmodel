@@ -1,0 +1,65 @@
+artifact_path: file:///home/runner/work/workflow-CI/workflow-CI/MLproject/mlruns/0/models/m-0ed6ed5bcc224fc0b586cfa28cbe5b35/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.12.7
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.7.2
+is_signature_from_type_hint: false
+mlflow_version: 3.4.0
+model_id: m-0ed6ed5bcc224fc0b586cfa28cbe5b35
+model_size_bytes: 137626310
+model_uuid: m-0ed6ed5bcc224fc0b586cfa28cbe5b35
+prompts: null
+run_id: 12445e7595be4e7199c8353e376a5ad6
+saved_input_example_info:
+  artifact_path: input_example.json
+  pandas_orient: split
+  serving_input_path: serving_input_example.json
+  type: dataframe
+signature:
+  inputs: '[{"type": "double", "name": "age", "required": true}, {"type": "double",
+    "name": "education_level", "required": true}, {"type": "double", "name": "income_level",
+    "required": true}, {"type": "double", "name": "alcohol_consumption_per_week",
+    "required": true}, {"type": "double", "name": "physical_activity_minutes_per_week",
+    "required": true}, {"type": "double", "name": "diet_score", "required": true},
+    {"type": "double", "name": "sleep_hours_per_day", "required": true}, {"type":
+    "double", "name": "screen_time_hours_per_day", "required": true}, {"type": "double",
+    "name": "family_history_diabetes", "required": true}, {"type": "double", "name":
+    "hypertension_history", "required": true}, {"type": "double", "name": "cardiovascular_history",
+    "required": true}, {"type": "double", "name": "bmi", "required": true}, {"type":
+    "double", "name": "waist_to_hip_ratio", "required": true}, {"type": "double",
+    "name": "systolic_bp", "required": true}, {"type": "double", "name": "diastolic_bp",
+    "required": true}, {"type": "double", "name": "heart_rate", "required": true},
+    {"type": "double", "name": "cholesterol_total", "required": true}, {"type": "double",
+    "name": "hdl_cholesterol", "required": true}, {"type": "double", "name": "ldl_cholesterol",
+    "required": true}, {"type": "double", "name": "triglycerides", "required": true},
+    {"type": "double", "name": "glucose_fasting", "required": true}, {"type": "double",
+    "name": "glucose_postprandial", "required": true}, {"type": "double", "name":
+    "insulin_level", "required": true}, {"type": "double", "name": "hba1c", "required":
+    true}, {"type": "double", "name": "diabetes_risk_score", "required": true}, {"type":
+    "double", "name": "diagnosed_diabetes", "required": true}, {"type": "double",
+    "name": "gender_Female", "required": true}, {"type": "double", "name": "gender_Male",
+    "required": true}, {"type": "double", "name": "gender_Other", "required": true},
+    {"type": "double", "name": "ethnicity_Asian", "required": true}, {"type": "double",
+    "name": "ethnicity_Black", "required": true}, {"type": "double", "name": "ethnicity_Hispanic",
+    "required": true}, {"type": "double", "name": "ethnicity_Other", "required": true},
+    {"type": "double", "name": "ethnicity_White", "required": true}, {"type": "double",
+    "name": "employment_status_Employed", "required": true}, {"type": "double", "name":
+    "employment_status_Retired", "required": true}, {"type": "double", "name": "employment_status_Student",
+    "required": true}, {"type": "double", "name": "employment_status_Unemployed",
+    "required": true}, {"type": "double", "name": "smoking_status_Current", "required":
+    true}, {"type": "double", "name": "smoking_status_Former", "required": true},
+    {"type": "double", "name": "smoking_status_Never", "required": true}]'
+  outputs: '[{"type": "long", "required": true}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2025-10-01 15:10:33.740880'
