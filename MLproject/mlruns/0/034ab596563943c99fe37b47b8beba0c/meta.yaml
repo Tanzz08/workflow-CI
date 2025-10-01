@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/workflow-CI/workflow-CI/MLproject/mlruns/0/034ab596563943c99fe37b47b8beba0c/artifacts
+end_time: 1759337793454
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 034ab596563943c99fe37b47b8beba0c
+run_name: classy-squid-323
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1759337548016
+status: 3
+tags: []
+user_id: runner
