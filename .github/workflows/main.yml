@@ -1,0 +1,72 @@
+name: CI
+
+on: 
+  push: 
+    branches: 
+      - main
+  pull_request: 
+    branches:
+      - main
+
+jobs: 
+  build: 
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3.12.7
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12.7"
+      
+      - name: Check Env
+        run: |
+          echo "X_TRAIN=$X_TRAIN"
+          echo "X_TEST=$X_TEST"
+          echo "Y_TRAIN=$Y_TRAIN"
+          echo "Y_TEST=$Y_TEST"
+
+      - name: Install mlflow
+        run: |
+          python -m pip install --upgrade pip
+          pip install mlflow
+          pip install mlflow gdown
+
+      - name: Download dataset from Google Drive
+        run: |
+          gdown --id 1T4mPMz50dZyQWV6SCZDvEXsKP28IGdEA -O MLproject/X_train.csv
+          gdown --id 1nOJUUHU1dZDLHvjlZuIxsdZy1lHikf8U -O MLproject/X_test.csv
+          gdown --id 1VIHMJezIppd1ViyJc7pM4Dxn3ABICdzY -O MLproject/y_train.csv
+          gdown --id 1syGpIdgrPM3yypO7GWpMUy_LJ9mBO78h -O MLproject/y_test.csv
+
+      - name: Run mlflow project
+        working-directory: MLproject
+        run: |
+          mlflow run . --env-manager=local \
+            -P X_train=MLproject/X_train.csv \
+            -P X_test=MLproject/X_test.csv \
+            -P y_train=MLproject/y_train.csv \
+            -P y_test=MLproject/y_test.csv
+
+
+      - name: Set up Git LFS
+        run: |
+          git config --global user.name ${{ secrets.GIT_USERNAME }}
+          git config --global user.email ${{ secrets.GIT_EMAIL }}
+          git lfs install
+          git lfs track "mlruns/**"
+          git add .gitattributes
+          git commit -m "Track large files in mlruns with Git LFS" || true
+          git push origin main
+
+      - name: Save mlruns to repo
+        run: |
+          git config --global user.name ${{ secrets.GIT_USERNAME }}
+          git config --global user.email ${{ secrets.GIT_EMAIL }}
+          git add -f mlruns/
+          git commit -m "Save mlruns from CI run" || true
+          git push origin main
