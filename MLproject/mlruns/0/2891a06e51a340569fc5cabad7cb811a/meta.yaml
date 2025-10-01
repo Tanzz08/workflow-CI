@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/workflow-CI/workflow-CI/MLproject/mlruns/0/2891a06e51a340569fc5cabad7cb811a/artifacts
+end_time: 1759330430232
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 2891a06e51a340569fc5cabad7cb811a
+run_name: wise-moth-673
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1759330179927
+status: 3
+tags: []
+user_id: runner
