@@ -37,11 +37,13 @@ jobs:
       - name: Run MLflow Project to Train Model
         working-directory: MLproject
         run: |
+          # Jalankan skrip dan arahkan outputnya ke GITHUB_OUTPUT
+          # Ini akan menangkap baris "MLFLOW_RUN_ID=..." yang kita cetak dari Python
           mlflow run . --env-manager=local \
             -P X_train=X_train.csv \
             -P X_test=X_test.csv \
             -P y_train=y_train.csv \
-            -P y_test=y_test.csv
+            -P y_test=y_test.csv >> $GITHUB_OUTPUT
 
       - name: Commit and Push MLflow Results
         run: |
@@ -58,16 +60,10 @@ jobs:
             git push origin main
           fi
           
-      - name: Get latest MLflow run_id
-        run: |
-          # Ubah -f3 menjadi -f4 untuk mengambil Run ID
-          RUN_ID=$(ls -td MLproject/mlruns/0/*/ | head -n 1 | cut -d'/' -f4)
-          echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
-          echo "Latest run_id: $RUN_ID"
-          
       - name: Build Docker Image from Model
         run: |
-          mlflow models build-docker --model-uri "runs:/${{ env.RUN_ID }}/model" --name "diabetes-classifier"
+          # Gunakan output yang ditangkap langsung dari langkah 'train_step'
+          mlflow models build-docker --model-uri "runs:/${{ steps.train_step.outputs.MLFLOW_RUN_ID }}/model" --name "diabetes-classifier"
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
