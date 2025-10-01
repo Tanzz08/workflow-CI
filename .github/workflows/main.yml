@@ -67,6 +67,14 @@ jobs:
         run: |
           git config --global user.name ${{ secrets.GIT_USERNAME }}
           git config --global user.email ${{ secrets.GIT_EMAIL }}
+          git lfs instal
+          git lfs track "*.pkl"
+          git add .gitattributes
           git add -f MLproject/mlruns/
-          git commit -m "Save mlruns from CI run" || true
-          git push origin main
+          if git diff --staged --quiet; then
+            echo "No new changes to commit."
+          else
+            # Tambahkan [skip ci] pada pesan commit untuk mencegah loop tak terbatas
+            git commit -m "Save mlruns from CI run [skip ci]"
+            git push origin main
+          fi
