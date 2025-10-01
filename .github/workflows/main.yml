@@ -59,7 +59,6 @@ jobs:
           fi
           
       - name: Get latest MLflow run_id
-        id: get_run_id
         run: |
           RUN_ID=$(ls -td MLproject/mlruns/0/*/ | head -n 1 | cut -d'/' -f3)
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
