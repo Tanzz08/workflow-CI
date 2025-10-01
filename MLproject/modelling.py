@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     input_example = X_train[0:5]
 
-    with mlflow.start_run():
+    with mlflow.start_run() as run:
         mlflow.autolog()
         model = RandomForestClassifier(
             n_estimators=n_estimators,
@@ -50,4 +50,7 @@ if __name__ == "__main__":
         mlflow.log_metric("precision", precision_score(y_test, y_pred, average="weighted"))
         mlflow.log_metric("recall", recall_score(y_test, y_pred, average="weighted"))
         mlflow.log_metric("f1_score", f1_score(y_test, y_pred, average="weighted"))
+
+        run_id = run.info.run_id
+        print(f"MLFLOW_RUN_ID={run_id}")
         
