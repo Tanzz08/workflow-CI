@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/workflow-CI/workflow-CI/MLproject/mlruns/0/195c34d13f4d4aab91c2341bbd10344a/artifacts
+end_time: 1759332578214
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 195c34d13f4d4aab91c2341bbd10344a
+run_name: big-slug-395
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1759332334880
+status: 3
+tags: []
+user_id: runner
