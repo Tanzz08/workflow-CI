@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on: 
   push: 
@@ -9,9 +9,8 @@ on:
       - main
 
 jobs: 
-  build: 
+  build-and-deploy: 
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
 
@@ -23,11 +22,10 @@ jobs:
         with:
           python-version: "3.12.7"
 
-      - name: Install mlflow
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install mlflow
-          pip install mlflow gdown
+          pip install mlflow gdown scikit-learn
 
       - name: Download dataset from Google Drive
         run: |
@@ -36,27 +34,16 @@ jobs:
           gdown --id 1VIHMJezIppd1ViyJc7pM4Dxn3ABICdzY -O MLproject/y_train.csv
           gdown --id 1syGpIdgrPM3yypO7GWpMUy_LJ9mBO78h -O MLproject/y_test.csv
 
-      - name: Run mlflow project
+      - name: Run MLflow Project to Train Model
         working-directory: MLproject
         run: |
           mlflow run . --env-manager=local \
-            -P X_train=MLproject/X_train.csv \
-            -P X_test=MLproject/X_test.csv \
-            -P y_train=MLproject/y_train.csv \
-            -P y_test=MLproject/y_test.csv
+            -P X_train=X_train.csv \
+            -P X_test=X_test.csv \
+            -P y_train=y_train.csv \
+            -P y_test=y_test.csv
 
-
-      - name: Set up Git LFS
-        run: |
-          git config --global user.name ${{ secrets.GIT_USERNAME }}
-          git config --global user.email ${{ secrets.GIT_EMAIL }}
-          git lfs install
-          git lfs track "mlruns/**"
-          git add .gitattributes
-          git commit -m "Track large files in mlruns with Git LFS" || true
-          git push origin main
-
-      - name: Save mlruns to repo
+      - name: Commit and Push MLflow Results
         run: |
           git config --global user.name ${{ secrets.GIT_USERNAME }}
           git config --global user.email ${{ secrets.GIT_EMAIL }}
@@ -67,36 +54,28 @@ jobs:
           if git diff --staged --quiet; then
             echo "No new changes to commit."
           else
-            # Tambahkan [skip ci] pada pesan commit untuk mencegah loop tak terbatas
             git commit -m "Save mlruns from CI run [skip ci]"
             git push origin main
           fi
-
-       # Get latest run_id
+          
       - name: Get latest MLflow run_id
+        id: get_run_id
         run: |
           RUN_ID=$(ls -td MLproject/mlruns/0/*/ | head -n 1 | cut -d'/' -f3)
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
           echo "Latest run_id: $RUN_ID"
           
-      # Build Docker Model
-      - name: Build Docker Model
+      - name: Build Docker Image from Model
         run: |
-          mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "diabetes-classifier" 
+          mlflow models build-docker --model-uri "runs:/${{ env.RUN_ID }}/model" --name "diabetes-classifier"
 
-      # Login to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      # Tag the Docker image
-      - name: Tag Docker Image
+      - name: Tag and Push Docker Image
         run: |
           docker tag diabetes-classifier ${{ secrets.DOCKER_HUB_USERNAME }}/diabetes-classifier:latest
-
-      # Push Docker image to Docker Hub
-      - name: Push Docker Image
-        run: |
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/diabetes-classifier:latest
