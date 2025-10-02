@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     input_example = X_train[0:5]
 
-    with mlflow.start_run() as run:
+    with mlflow.start_run():
         
         model = RandomForestClassifier(
             n_estimators=n_estimators,
