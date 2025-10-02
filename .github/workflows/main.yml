@@ -34,15 +34,15 @@ jobs:
           gdown --id 1VIHMJezIppd1ViyJc7pM4Dxn3ABICdzY -O MLproject/y_train.csv
           gdown --id 1syGpIdgrPM3yypO7GWpMUy_LJ9mBO78h -O MLproject/y_test.csv
 
-      - name: Run MLflow Project and Capture Run ID
-        id: train_step
+      - name: Run MLflow Project
         working-directory: MLproject
         run: |
-          RUN_ID=$(mlflow run . --env-manager=local \
+          mlflow run . --env-manager=local \
             -P X_train=X_train.csv \
             -P X_test=X_test.csv \
             -P y_train=y_train.csv \
-            -P y_test=y_test.csv 
+            -P y_test=y_test.csv
+
 
       - name: Get latest MLflow run_id
         run: |
