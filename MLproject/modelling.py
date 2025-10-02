@@ -34,9 +34,7 @@ if __name__ == "__main__":
         )
 
         model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-
-        mlflow.log_params(model.get_params())
+        y_pred = model.predict(X_test
 
         mlflow.sklearn.log_model(
             sk_model=model,
@@ -45,7 +43,6 @@ if __name__ == "__main__":
         )
 
         # evaluasi
-        mlflow.log_params(model.get_params())
         mlflow.log_metric("accuracy", accuracy_score(y_test, y_pred))
         mlflow.log_metric("precision", precision_score(y_test, y_pred, average="weighted"))
         mlflow.log_metric("recall", recall_score(y_test, y_pred, average="weighted"))
