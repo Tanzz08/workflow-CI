@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/workflow-CI/workflow-CI/MLproject/mlruns/0/2481c7d4e8674671bf93bc4c3f7c331a/artifacts
+end_time: 1759377347584
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 2481c7d4e8674671bf93bc4c3f7c331a
+run_name: intelligent-lynx-275
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1759377103060
+status: 3
+tags: []
+user_id: runner
