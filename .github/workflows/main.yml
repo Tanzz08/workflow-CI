@@ -43,9 +43,8 @@ jobs:
           pip install mlflow scikit-learn
 
       - name: Run MLflow Project
-        working-directory: MLproject
         run: |
-          mlflow run . --env-manager=local \
+          mlflow run MLproject --env-manager=local \
             -P X_train=$TRAIN_FILE \
             -P X_test=$TEST_FILE \
             -P y_train=$YTRAIN_FILE \
