@@ -42,7 +42,7 @@ jobs:
             -P X_train=X_train.csv \
             -P X_test=X_test.csv \
             -P y_train=y_train.csv \
-            -P y_test=y_test.csv | grep -oP "(?<=Run \()[0-9a-f-]+(?=\))")
+            -P y_test=y_test.csv | grep -oP "(?<=ID ')[0-9a-f-]+(?=')")
 
           echo "MLFLOW_RUN_ID=$RUN_ID"
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV   # <=== simpan ke environment GitHub
