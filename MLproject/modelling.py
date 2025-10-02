@@ -54,6 +54,7 @@ if __name__ == "__main__":
             sk_model=model,
             artifact_path="model",
             input_example=input_example
+        )
         
                             
         # evaluasi
