@@ -62,9 +62,11 @@ jobs:
           fi
           
       - name: Build Docker Image from Model
+        working-directory: MLproject
         run: |
-          # Gunakan output yang ditangkap langsung dari langkah 'train_step'
-          mlflow models build-docker --model-uri "runs:/${{ steps.train_step.outputs.MLFLOW_RUN_ID }}/model" --name "diabetes-classifier"
+          mlflow models build-docker \
+            --model-uri "runs:/${{ steps.train_step.outputs.MLFLOW_RUN_ID }}/model" \
+            --name "diabetes-classifier"
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
