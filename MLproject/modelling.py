@@ -49,22 +49,12 @@ if __name__ == "__main__":
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test)
 
-        # log important features setelah fit
-        importances = model.feature_importances_
-        important_feature_names = X_train.columns[np.argsort(importances)[::-1][:10]]
-        mlflow.log_param('selected_features', important_feature_names.tolist())
                                
         mlflow.sklearn.log_model(
             sk_model=model,
             artifact_path="model",
             input_example=input_example
-        )
-
-        # log dataset artifact
-        mlflow.log_artifact(os.path.join(base_path, "X_train.csv"))
-        mlflow.log_artifact(os.path.join(base_path, "X_test.csv"))
-        mlflow.log_artifact(os.path.join(base_path, "y_train.csv"))
-        mlflow.log_artifact(os.path.join(base_path, "y_test.csv"))
+        
                             
         # evaluasi
         mlflow.log_metric("accuracy", accuracy_score(y_test, y_pred))
