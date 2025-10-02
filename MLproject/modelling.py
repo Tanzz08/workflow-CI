@@ -35,12 +35,14 @@ if __name__ == "__main__":
 
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test
-
+                               
         mlflow.sklearn.log_model(
             sk_model=model,
             artifact_path='model',
             input_example=input_example
         )
+        mlflow.log_params(model.get_params())
+                               
 
         # evaluasi
         mlflow.log_metric("accuracy", accuracy_score(y_test, y_pred))
