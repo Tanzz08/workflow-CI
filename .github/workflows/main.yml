@@ -34,42 +34,34 @@ jobs:
           gdown --id 1VIHMJezIppd1ViyJc7pM4Dxn3ABICdzY -O MLproject/y_train.csv
           gdown --id 1syGpIdgrPM3yypO7GWpMUy_LJ9mBO78h -O MLproject/y_test.csv
 
-      - name: Run MLflow Project and Capture Run ID
-        id: train_step
-        working-directory: MLproject
+      - name: Run MLflow Project and Build Docker Image
+        env:
+          # Beri tahu MLflow di mana folder mlruns berada
+          MLFLOW_TRACKING_URI: file://${{ github.workspace }}/MLproject/mlruns
         run: |
-          # Jalankan skrip dan arahkan outputnya ke GITHUB_OUTPUT
-          # Ini akan menangkap baris "MLFLOW_RUN_ID=..." yang kita cetak dari Python
-          mlflow run . --env-manager=local \
+          # Jalankan training dan tangkap RUN_ID ke dalam sebuah variabel shell
+          # Catatan: Skrip Python Anda harus mencetak "MLFLOW_RUN_ID=..." ke output
+          FULL_OUTPUT=$(mlflow run ./MLproject --env-manager=local \
             -P X_train=X_train.csv \
             -P X_test=X_test.csv \
             -P y_train=y_train.csv \
-            -P y_test=y_test.csv >> $GITHUB_OUTPUT
-
-      - name: Commit and Push MLflow Results
-        run: |
-          git config --global user.name ${{ secrets.GIT_USERNAME }}
-          git config --global user.email ${{ secrets.GIT_EMAIL }}
-          git lfs install
-          git lfs track "*.pkl"
-          git add .gitattributes
-          git add -f MLproject/mlruns/
-          if git diff --staged --quiet; then
-            echo "No new changes to commit."
-          else
-            git commit -m "Save mlruns from CI run [skip ci]"
-            git push origin main
-          fi
+            -P y_test=y_test.csv)
           
-      # ===============================================================
-      # PERUBAHAN UTAMA: Gunakan 'docker build' dengan Dockerfile kustom
-      # ===============================================================
-      - name: Build Docker Image with Custom Dockerfile
-        run: |
-          echo "Building Docker image for RUN_ID: ${{ steps.train_step.outputs.MLFLOW_RUN_ID }}"
-          docker build . \
-            --build-arg RUN_ID=${{ steps.train_step.outputs.MLFLOW_RUN_ID }} \
-            -t diabetes-classifier
+          echo "$FULL_OUTPUT"
+          
+          RUN_ID=$(echo "$FULL_OUTPUT" | grep "MLFLOW_RUN_ID" | cut -d'=' -f2)
+          echo "Training completed with RUN_ID: $RUN_ID"
+
+          # Jika RUN_ID kosong, hentikan workflow agar tidak gagal
+          if [ -z "$RUN_ID" ]; then
+            echo "Error: Could not find RUN_ID."
+            exit 1
+          fi
+
+          # Bangun image Docker menggunakan perintah bawaan MLflow
+          mlflow models build-docker \
+            --model-uri "runs:/$RUN_ID/model" \
+            --name "${{ secrets.DOCKER_HUB_USERNAME }}/diabetes-classifier"
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
