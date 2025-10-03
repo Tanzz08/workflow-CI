@@ -45,6 +45,7 @@ jobs:
             -P X_test=X_test.csv \
             -P y_train=y_train.csv \
             -P y_test=y_test.csv >> $GITHUB_OUTPUT
+            
 
       - name: Commit and Push MLflow Results
         run: |
@@ -66,6 +67,8 @@ jobs:
       # ===============================================================
       - name: Build Docker Image with Custom Dockerfile
         run: |
+          LATEST_RUN=$(ls -td MLproject/mlruns/0/*/ | head -1)
+          cp -r $LATEST_RUN/artifacts/model ./model_dir
           echo "Building Docker image for RUN_ID: ${{ steps.train_step.outputs.MLFLOW_RUN_ID }}"
           docker build . \
             --build-arg RUN_ID=${{ steps.train_step.outputs.MLFLOW_RUN_ID }} \
