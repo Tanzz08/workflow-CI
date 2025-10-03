@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/workflow-CI/workflow-CI/MLproject/mlruns/0/f3571372e3fd4f25a91702750ee2217f/artifacts
+end_time: 1759469749643
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: f3571372e3fd4f25a91702750ee2217f
+run_name: skillful-lark-675
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1759469493898
+status: 3
+tags: []
+user_id: runner
