@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/workflow-CI/workflow-CI/MLproject/mlruns/0/c331b55875fa41539840470466ecb362/artifacts
+end_time: 1759480454151
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: c331b55875fa41539840470466ecb362
+run_name: bedecked-fowl-998
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1759480212513
+status: 3
+tags: []
+user_id: runner
