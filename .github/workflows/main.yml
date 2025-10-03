@@ -68,11 +68,17 @@ jobs:
       - name: Build Docker Image with Custom Dockerfile
         run: |
           LATEST_RUN=$(ls -td MLproject/mlruns/0/*/ | head -1)
-          cp -r $LATEST_RUN/artifacts/model ./model_dir
+          echo "LATEST RUN: $LATEST_RUN"
+          # cari folder artifact pertama (misalnya model atau diabetes_model)
+          ARTIFACT_PATH=$(ls -d $LATEST_RUN/artifacts/* | head -1)
+          echo "Copying artifact from: $ARTIFACT_PATH"
+          cp -r $ARTIFACT_PATH ./model_dir
+          
           echo "Building Docker image for RUN_ID: ${{ steps.train_step.outputs.MLFLOW_RUN_ID }}"
           docker build . \
             --build-arg RUN_ID=${{ steps.train_step.outputs.MLFLOW_RUN_ID }} \
             -t diabetes-classifier
+
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
