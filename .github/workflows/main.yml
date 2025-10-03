@@ -1,15 +1,15 @@
 name: CI/CD Pipeline
 
-on:
-  push:
-    branches:
+on: 
+  push: 
+    branches: 
       - main
-  pull_request:
+  pull_request: 
     branches:
       - main
 
-jobs:
-  build-and-deploy:
+jobs: 
+  build-and-deploy: 
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -34,57 +34,42 @@ jobs:
           gdown --id 1VIHMJezIppd1ViyJc7pM4Dxn3ABICdzY -O MLproject/y_train.csv
           gdown --id 1syGpIdgrPM3yypO7GWpMUy_LJ9mBO78h -O MLproject/y_test.csv
 
-      # --- GABUNGAN LANGKAH TRAINING DAN BUILD ---
-      - name: Run Training and Build Docker Image
-        id: build_step # Menambahkan id agar bisa merujuk ke RUN_ID
-        env:
-          # Beri tahu MLflow di mana folder mlruns berada
-          MLFLOW_TRACKING_URI: file://${{ github.workspace }}/MLproject/mlruns
+      - name: Run MLflow Project and Capture Run ID
+        id: train_step
+        working-directory: MLproject
         run: |
-          # 1. Jalankan training SATU KALI dan tangkap outputnya
-          FULL_OUTPUT=$(mlflow run ./MLproject --env-manager=local \
+          # Jalankan skrip dan arahkan outputnya ke GITHUB_OUTPUT
+          # Ini akan menangkap baris "MLFLOW_RUN_ID=..." yang kita cetak dari Python
+          mlflow run . --env-manager=local \
             -P X_train=X_train.csv \
             -P X_test=X_test.csv \
             -P y_train=y_train.csv \
-            -P y_test=y_test.csv)
-          
-          echo "--- MLflow Run Output ---"
-          echo "$FULL_OUTPUT"
-          echo "-------------------------"
-          
-          # 2. Ambil RUN_ID dari output
-          RUN_ID=$(echo "$FULL_OUTPUT" | grep "MLFLOW_RUN_ID" | cut -d'=' -f2)
-          echo "Training completed with RUN_ID: $RUN_ID"
-          echo "MLFLOW_RUN_ID=$RUN_ID" >> $GITHUB_OUTPUT # Simpan RUN_ID untuk langkah selanjutnya
+            -P y_test=y_test.csv >> $GITHUB_OUTPUT
 
-          if [ -z "$RUN_ID" ]; then
-            echo "Error: Could not find RUN_ID from MLflow run."
-            exit 1
-          fi
-
-          # 3. Bangun image Docker menggunakan perintah bawaan MLflow
-          mlflow models build-docker \
-            --model-uri "runs:/$RUN_ID/model" \
-            --name "${{ secrets.DOCKER_HUB_USERNAME }}/diabetes-classifier" \
-            --base-image "python:3.12.7-slim"
-
-      # --- LANGKAH BARU: SIMPAN ARTEFAK MLRUNS KE GITHUB REPO ---
-      - name: Commit and Push MLflow Artifacts
+      - name: Commit and Push MLflow Results
         run: |
-          git config --global user.name "${{ secrets.GIT_USERNAME }}"
-          git config --global user.email "${{ secrets.GIT_EMAIL }}"
+          git config --global user.name ${{ secrets.GIT_USERNAME }}
+          git config --global user.email ${{ secrets.GIT_EMAIL }}
           git lfs install
           git lfs track "*.pkl"
           git add .gitattributes
           git add -f MLproject/mlruns/
-          
-          # Cek apakah ada perubahan untuk di-commit
           if git diff --staged --quiet; then
             echo "No new changes to commit."
           else
-            git commit -m "Save mlruns artifact from CI run ${{ steps.build_step.outputs.MLFLOW_RUN_ID }} [skip ci]"
+            git commit -m "Save mlruns from CI run [skip ci]"
             git push origin main
           fi
+          
+      # ===============================================================
+      # PERUBAHAN UTAMA: Gunakan 'docker build' dengan Dockerfile kustom
+      # ===============================================================
+      - name: Build Docker Image with Custom Dockerfile
+        run: |
+          echo "Building Docker image for RUN_ID: ${{ steps.train_step.outputs.MLFLOW_RUN_ID }}"
+          docker build . \
+            --build-arg RUN_ID=${{ steps.train_step.outputs.MLFLOW_RUN_ID }} \
+            -t diabetes-classifier
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -92,9 +77,7 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      # --- LANGKAH PUSH YANG DIPERBAIKI ---
-      - name: Push Docker Image
+      - name: Tag and Push Docker Image
         run: |
-          # Langsung push image yang sudah diberi nama dengan benar oleh MLflow
+          docker tag diabetes-classifier ${{ secrets.DOCKER_HUB_USERNAME }}/diabetes-classifier:latest
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/diabetes-classifier:latest
-
