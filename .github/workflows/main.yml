@@ -65,7 +65,8 @@ jobs:
           # 3. Bangun image Docker menggunakan perintah bawaan MLflow
           mlflow models build-docker \
             --model-uri "runs:/$RUN_ID/model" \
-            --name "${{ secrets.DOCKER_HUB_USERNAME }}/diabetes-classifier"
+            --name "${{ secrets.DOCKER_HUB_USERNAME }}/diabetes-classifier" \
+            --base-image "python:3.12.7-slim"
 
       # --- LANGKAH BARU: SIMPAN ARTEFAK MLRUNS KE GITHUB REPO ---
       - name: Commit and Push MLflow Artifacts
