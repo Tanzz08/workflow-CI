@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/workflow-CI/workflow-CI/MLproject/mlruns/0/913fd78aa52f4472abacf4907d2cfe6d/artifacts
+end_time: 1759482333792
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 913fd78aa52f4472abacf4907d2cfe6d
+run_name: wistful-roo-155
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1759482086815
+status: 3
+tags: []
+user_id: runner
