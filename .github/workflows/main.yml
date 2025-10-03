@@ -8,12 +8,6 @@ on:
     branches:
       - main
 
-env:
-  TRAIN_FILE: "MLproject/X_train.csv"
-  TEST_FILE: "MLproject/X_test.csv"
-  YTRAIN_FILE: "MLproject/y_train.csv"
-  YTEST_FILE: "MLproject/y_test.csv"
-
 jobs: 
   build-and-deploy: 
     runs-on: ubuntu-latest
@@ -28,17 +22,10 @@ jobs:
         with:
           python-version: "3.12.7"
 
-      - name: Check Env
-        run: |
-          echo "TRAIN_FILE=$TRAIN_FILE"
-          echo "TEST_FILE=$TEST_FILE"
-          echo "YTRAIN_FILE=$YTRAIN_FILE"
-          echo "YTEST_FILE=$YTEST_FILE"
-
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install mlflow==2.19.0 gdown
+          pip install mlflow gdown scikit-learn
 
       - name: Download dataset from Google Drive
         run: |
@@ -47,16 +34,17 @@ jobs:
           gdown --id 1VIHMJezIppd1ViyJc7pM4Dxn3ABICdzY -O MLproject/y_train.csv
           gdown --id 1syGpIdgrPM3yypO7GWpMUy_LJ9mBO78h -O MLproject/y_test.csv
 
-      - name: Clean mlruns
-        run: rm -rf MLproject/mlruns
-
-      - name: Run MLflow Project
+      - name: Run MLflow Project and Capture Run ID
+        id: train_step
+        working-directory: MLproject
         run: |
-          mlflow run MLproject --env-manager=local \
-            -P X_train=$TRAIN_FILE \
-            -P X_test=$TEST_FILE \
-            -P y_train=$YTRAIN_FILE \
-            -P y_test=$YTEST_FILE
+          # Jalankan skrip dan arahkan outputnya ke GITHUB_OUTPUT
+          # Ini akan menangkap baris "MLFLOW_RUN_ID=..." yang kita cetak dari Python
+          mlflow run . --env-manager=local \
+            -P X_train=X_train.csv \
+            -P X_test=X_test.csv \
+            -P y_train=y_train.csv \
+            -P y_test=y_test.csv >> $GITHUB_OUTPUT
 
       - name: Commit and Push MLflow Results
         run: |
@@ -72,16 +60,16 @@ jobs:
             git commit -m "Save mlruns from CI run [skip ci]"
             git push origin main
           fi
-
-      - name: Get latest MLflow run_id
+          
+      # ===============================================================
+      # PERUBAHAN UTAMA: Gunakan 'docker build' dengan Dockerfile kustom
+      # ===============================================================
+      - name: Build Docker Image with Custom Dockerfile
         run: |
-          RUN_ID=$(ls -td mlruns/0/*/ | head -n 1 | cut -d'/' -f3)
-          echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
-          echo "Latest run_id: $RUN_ID"
-
-      - name: Build Docker Model
-        run: |
-          mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "diabetes-classifier"
+          echo "Building Docker image for RUN_ID: ${{ steps.train_step.outputs.MLFLOW_RUN_ID }}"
+          docker build . \
+            --build-arg RUN_ID=${{ steps.train_step.outputs.MLFLOW_RUN_ID }} \
+            -t diabetes-classifier
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -89,7 +77,7 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Push Docker Image
+      - name: Tag and Push Docker Image
         run: |
           docker tag diabetes-classifier ${{ secrets.DOCKER_HUB_USERNAME }}/diabetes-classifier:latest
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/diabetes-classifier:latest
